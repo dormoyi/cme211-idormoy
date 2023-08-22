@@ -1,0 +1,85 @@
+% NSF proposal generation template style file.
+% based on latex stylefiles written by Stefan Llewellyn Smith and
+% Sarah Gille, with contributions from other collaborators.
+%
+\documentclass{proposalnsf}
+
+% See this file for a set of pre-defined journal abbreviations
+\input{journal-abbreviations.tex} 
+
+\newcommand{\degrees}{$\!\!$\char23$\!$}
+\renewcommand{\refname}{\centerline{References cited}}
+
+% This handles hanging indents for publications
+\def\rrr#1\\{\par
+\medskip\hbox{\vbox{\parindent=2em\hsize=6.12in
+\hangindent=4em\hangafter=1#1}}}
+
+\def\baselinestretch{1}
+
+\begin{document}
+
+\begin{center}
+{\Large{\bf README}}\\*[3mm]
+{\bf Homework 4} \\*[3mm]
+
+Ines Dormoy \\
+06679317
+
+\end{center}
+
+
+
+
+\noindent
+{\bf What I did}
+\\ \\
+The purpose of the code is to determine if a truss is balanced or not. For that, we use the joints method to solve the equation for every joint. \\
+The truss class first loads the data files and creates two data structures. We have a dictionary for the joints, and another one for the beams. 
+The data structures are as follows:
+
+\begin{itemize}
+    \item joints\_dict=\{'1': {'coords': (x1, x2), 'F': (Fx, Fy), 
+            'R': 0, (support reaction?), 'beams': ['1', '2'] (list of beams connected to the joint)\}
+    \item beams\_dict=\{'1' (beam number): ('1', '2' (joints number))\}
+\end{itemize}
+
+After loading the data, we calculate the coefficients of the A matrix to solve Ax = b. b contains the F forces. x contains the unknowns of the problem (B1, B1,... and R1, R1...), Ri is in the unknowns of the problem only if there is a reaction force for this joint. A contains the associated coefficients in function of the physics of the problem. There are lots of zeros in the A matrix, as lot of forces only apply for one or two specific points. Therefore, A is sparse and it's not interesting to store it as a dense matrix. We choose to save it as a CSR matrix, represented by three arrays. Those arrays are data, rows, and columns. Data stores the actual non zero data of the A matrix. Rowns and columns contain the rows and columns indicating where the values are stored. After creating A as a sparse matrix, we solve the system. We then output the x result in a nice way for the user. \\
+
+The class is Truss, here are the methods
+\begin{itemize}
+    \item \_\_init\_\_(self, joints\_file, beams\_file, output\_file=None) : \\input: joints\_file, beams\_file - names of the joints and beams files
+        structure chosen: 2 dictionaries
+        joints\_dict=\{'1': \{'coords': (x1, x2), 'F': (Fx, Fy), \
+            'R': 0, (support reaction?)\
+             'beams': ['1', '2'] (list of beams connected to the joint)\}
+        beams\_dict={'1' (beam number): ('1', '2' (joints number))\}
+    \item load\_files(self): \\
+    loads the files $joints.dat$ and $beams.dat$ \\
+        output: joints\_dict and beams\_dict described in $\_\_init\_\_$
+        and $reac = [0,0,1]$ means J1, J2 don't have reaction, J3 has a reaction.
+    \item calc\_coeff(self, pt1, pt2, case): \\
+    computes the coefficient in the matrix A of the linear system
+        input: pt1 (str), pt2 (str), case ('x' or 'y')
+            pt1 and pt2 are the numbers of the joints
+            pt1 is the point of the joint which equation is being considered
+            case 'x' if we compute the coefficient on x axis 
+            equation, otherwise y \\
+        output: coefficient of A (float)
+    \item create\_system(self): \\
+    creates the A and b matrices to solve the Ax = b system
+        A is a sparse matrix created with the data, rows and cols lists
+        output: A and B matrices
+    \item PlotGeometry(self):\\
+    show the geometry of the truss
+    \item solve\_system(self, A, B): \\
+    solves the system Ax=B, returns x
+    \item \_\_repr\_\_(self): \\
+    solves the system and returns the result
+    
+\end{itemize}
+
+
+
+
+\end{document}

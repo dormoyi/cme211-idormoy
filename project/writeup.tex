@@ -1,0 +1,225 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{epsf, amsmath, amssymb, graphicx, epsfig, hyperref, amsthm}
+
+\usepackage{subfigure} % For subfigures
+\usepackage{setspace} 
+\usepackage{fancyhdr} 
+\usepackage{eurosym}  %To write a Euro symbol
+\usepackage{braket}
+\usepackage[autolanguage]{numprint}
+\usepackage{hyphenat}
+\usepackage[utf8]{inputenc}
+\usepackage[greek,english]{babel}
+\usepackage{alphabeta} 
+\usepackage{fancyhdr}
+\usepackage[pdftex]{graphicx}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\linespread{1.06}
+\setlength{\parskip}{8pt plus2pt minus2pt}
+
+\widowpenalty 10000
+\clubpenalty 10000
+
+\newcommand{\eat}[1]{}
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+\usepackage[official]{eurosym}
+\usepackage{enumitem}
+\setlist{nolistsep,noitemsep}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cite}
+\usepackage{lipsum}
+\usepackage{xcolor}
+
+
+\begin{document}
+
+%===========================================================
+
+
+%\begin{abstract}
+%Nous sommes trois étudiants en deuxième année à CentraleSupélec. Nous avons eu l'opportunité de travailler pendant le deuxième semestre de l'année scolaire 2021 - 2022 avec EDF sur l'application de nouvelles méthodes de machine learning quantique à de la prévision de consommation électrique. Ce rapport a pour but de détailler le contexte, la problématique, le travail effectué et les bénéfices que nous tirons de cette expérience. Nous remercions Wassila Ouerdane et Jean-Philippe Poli, les deux encadrants académiques de ce projet ainsi que Joseph Mikael et son équipe, qui nous ont accueilis au sein de l'EDF Lab et qui ont fait un grand effort pour faciliter notre compréhension et notre travail sur la thématique.
+%\addtocontents{toc}{\protect\thispagestyle{empty}}
+%\end{abstract}
+
+
+
+
+%===========================================================
+\begin{center}
+{\Large{\bf WRITEUP}}\\*[3mm]
+{\bf Project part 2} \\*[3mm]
+
+Ines Dormoy \\
+06679317
+
+\end{center}
+
+%===========================================================
+%===========================================================
+\section{Summary of the overall project}
+
+We are considering a system where we are transferring some hot fluid, with temperature $T_h $, within a pipe. To keep the exterior of the pipe cold, a series of cold air jets, with temperature $T_c$, are equally distributed along the pipe and continuously impinge on the pipe surface. We are interested in determining the value of the mean temperature within the pipe walls. To model this problem, we will analyze one periodic section of the pipe wall. For this, we discretize the pipe wall and solve equations for each point (see Figure 1). 
+
+\begin{figure}[h!]
+  \centerline{\includegraphics[scale=0.5]{discret.png}}
+  \caption{Input1.txt}
+  
+\end{figure}
+
+
+
+
+\section{Solver implementation}
+
+\subsection{Conjugate gradient algorithm}
+\begin{algorithm}
+\caption{Conjugate Gradient Method}
+\begin{algorithmic}	
+	\STATE initialize $u_0$
+	\STATE $r_0 = b-Au_0$
+	\STATE L2normr0 = $\lVert$$r_0$$\rVert$
+	\STATE $p_0 = r_0$
+	\STATE niter $=0$
+	\WHILE{niter $<$ nitermax}
+		\STATE niter = niter $+1$
+		\STATE $\alpha$$_n$ = $(r_n^Tr_n)/(p_n^TAp_n)$
+		\STATE $u_{n+1} = u_n+\text{$\alpha$}_np_n$
+		\STATE $r_{n+1} = r_n - \text{$\alpha$}_nAp_n$
+		\STATE L2normr = $\lVert$$r_{n+1}$$\rVert$
+		\IF{L2normr/L2normr0 $<$ threshold}
+		\STATE break
+		\ENDIF
+		\STATE $\text{$\beta$}_n = (r_{n+1}^Tr_{n+1})/(r_n^Tr_n)$
+		\STATE $p_{n+1} = r_{n+1} + \text{$\beta$}_np_n$
+		
+	\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+
+
+\subsection{Matrix and solver classes}
+
+\textbf{Matrix class (SparseMatrix)} \\
+Attributes:
+\begin{itemize}
+    \item $i\_idx$ - line indexes
+    \item $j\_idx$ - columns indexes
+    \item a - values in the matrix
+    \item ncols - number of columns of the matrix;
+    \item nrows - number of rows of the matrix;
+\end{itemize}
+
+Methods:
+\begin{itemize}
+    \item AddEntry - add an entry to a matrix
+    \item ConvertToCSR - convert to CSR
+    \item $get\_i$ - get the vector of lines
+    \item $get\_j$ - get the vector of columns
+    \item $get\_a$ - get the vector of values
+\end{itemize}
+
+\\
+\\ 
+
+\textbf{Solver class (HeatEquation2D)} \\
+Attributes:
+\begin{itemize}
+    \item A - sparse matrix to be solved
+    \item b - vector in the Ax=b equation
+    \item x - solution vector
+    \item ncols - number of columns of the matrix;
+    \item nrows - number of rows of the matrix;
+    \item ninc - number of unknowns in the system
+    \item niter - number of iterations made by CG algorithm
+\end{itemize}
+
+Methods:
+\begin{itemize}
+    \item Setup - sets the system that we need to solve
+    \item Solve - solve the system and return the solution
+\end{itemize}
+
+
+
+
+\section{Users guide}
+
+Here is the list of commands to execute to get the results:
+
+\begin{verbatim}
+$ make
+$ ./main inputXX.txt solution
+$ python3 postprocess.py input1.txt solutionXX.txt
+\end{verbatim}
+
+
+\section{Results}
+
+
+
+\begin{verbatim}
+$ ./main input0.txt solution
+$ SUCCESS: CG solver converged in 8 iterations
+
+$ python3 postprocess.py input0.txt solution10.txt
+$ Input file processed: input0.txt
+$ Mean Temperature: 100.0002
+\end{verbatim}
+
+
+\begin{figure}[h!]
+  \centerline{\includegraphics[scale=0.7]{plot0.png}}
+  \caption{Input0.txt}
+  
+\end{figure}
+
+\begin{verbatim}
+$ ./main input1.txt solution
+$ SUCCESS: CG solver converged in 129 iterations
+
+$ python3 postprocess.py input1.txt solution130.txt
+$ Input file processed: input1.txt
+$ Mean Temperature: 115.5954
+\end{verbatim}
+
+\begin{figure}[h!]
+  \centerline{\includegraphics[scale=0.7]{plot1.png}}
+  \caption{Input1.txt}
+  
+\end{figure}
+
+\begin{verbatim}
+$ ./main input2.txt solution
+$ SUCCESS: CG solver converged in 155 iterations
+
+$ python3 postprocess.py input2.txt solution160.txt
+$ Input file processed: input2.txt
+$ Mean Temperature: 81.0418
+\end{verbatim}
+
+\begin{figure}[h!]
+  \centerline{\includegraphics[scale=0.7]{plot2.png}}
+  \caption{Input2.txt}
+  
+\end{figure}
+
+\newpage\color{red}
+Please note I didn't ran the python post processing file on rice because of SSH issues (slow connection, no loading of the files). That might explain why the colors were different on my computer for the plots.
+\color{black}
+
+
+\section{References}
+$[1]$ Final Project: Part 1 for CME 211: Software Development for Scientists and Engineers. http://coursework.stanford.edu. Stanford University, Dec 2022.\\
+$[2]$ Final Project: Part 2 for CME 211: Software Development for Scientists and Engineers. http://coursework.stanford.edu. Stanford University, Dec 2022.
+
+
+
+
+ 
+
+
+\end{document} 

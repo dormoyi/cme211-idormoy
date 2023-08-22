@@ -1,0 +1,5 @@
+naca0012
+naca2412
+naca*
+*.pyc
+__pycache__

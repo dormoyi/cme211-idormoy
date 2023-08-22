@@ -1,0 +1,6 @@
+*.o
+main
+solution*
+matrix*
+*.txt
+input*

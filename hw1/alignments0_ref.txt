@@ -1,0 +1,5 @@
+GAG -1
+TGT 0 7
+AGA 3
+AAT 5
+TAG 2

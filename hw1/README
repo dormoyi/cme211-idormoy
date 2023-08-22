@@ -1,0 +1,79 @@
+PART 2
+
+- considerations to design the test data: I avoided repeating reads in the list. My reads start in different parts of the string, to check if the 
+program checks the whole string. One of the reads begins at the 0 index of the string, and ends at the last index of the string, to check if the 
+program performs well even at the very beginning or very ending of the string. 
+
+- If your code works properly for your handwritten data, will it always work correctly for other datasets?: I would definitively test my code
+on larger datasets. The genome length souldn't be necessarily a multiple of 4. Working on the handwritten dataset is a good start though. 
+
+- ratio expectation: we do not expect this exact ratio. First, we pick randomly the type of the read according to the desired proportion. 
+This causes some variance in the percentages observed. Also, some reads may appear more than one or twice depending on how the dataset is randomly chosen
+(this will not be reflected in the ratio computation though, as we do not know when this happens).
+We did not set controls on that, so it may happen, especially if the reads are short.
+
+- time spent coding: 2h30
+
+$ python3 generatedata.py 1000 600 50 "ref_1.txt" "reads_1.txt"
+reference length:  1000
+number reads:  600
+read length:  50
+aligns 0:  0.14166666666666666
+aligns 1:  0.7566666666666667
+aligns 2:  0.10166666666666667
+
+$ python3 generatedata.py 10000 6000 50 "ref_2.txt" "reads_2.txt"
+reference length:  10000
+number reads:  6000
+read length:  50
+aligns 0:  0.1495
+aligns 1:  0.7525
+aligns 2:  0.098
+
+$ python3 generatedata.py 100000 60000 50 "ref_3.txt" "reads_3.txt"
+reference length:  100000
+number reads:  60000
+read length:  50
+aligns 0:  0.1477
+aligns 1:  0.7532333333333333
+aligns 2:  0.09906666666666666
+
+
+PART 3
+
+- the reads do not exactly match. Indeed, some reads are labeled as found 2 times by our processing program, whereas they were labeled as existing only 1
+time by our data genetator. As commented in the third bullet point of this readme, we do not check if reads labeled as apperearing only 1 time actually
+appear only one time, as we do not check the whole string. It may happen if the data randomly repeats itself. I observed that this phenomenon happens
+pretty often, almost always at least once when I run the code on the suggested instances. 
+
+- size of human genome: 10^9. We observe that our algorithm is approximately O(n^2). Actually from a theoretical point of view, its complexity is 
+approximately O(n_read*n_ref). This would be a time of O(10^9*10^5) for 10^5 strings. If we estimate that the time to compute an operation is
+approximately 10^(-7) (estimated from the first example 1000*600*operations_time = 10^(-2)), we get that it would take 4 months to process the human 
+genome. Although it is a huge amount of time, it is still a runnable program. 
+
+- time spent coding: 1h
+
+$ python3 processdata.py ref_1.txt reads_1.txt align_1.txt
+reference length:  1000
+number reads:  600
+aligns 0:  0.14166666666666666
+aligns 1:  0.75
+aligns 2:  0.10833333333333334
+elapsed time:  0.011722564697265625
+
+$ python3 processdata.py ref_2.txt reads_2.txt align_2.txt
+reference length:  10000
+number reads:  6000
+aligns 0:  0.1495
+aligns 1:  0.7521666666666667
+aligns 2:  0.09833333333333333
+elapsed time:  0.2724123001098633
+
+$ python3 processdata.py ref_3.txt reads_3.txt align_3.txt
+reference length:  100000
+number reads:  60000
+aligns 0:  0.1477
+aligns 1:  0.7532
+aligns 2:  0.0991
+elapsed time:  24.3616304397583
+
